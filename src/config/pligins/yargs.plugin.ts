@@ -1,8 +1,8 @@
-import yargs from 'yargs';
+import yargs, {options} from 'yargs';
 import {hideBin} from 'yargs/helpers';
 
 export const yarg = yargs(hideBin(process.argv))
-    .options('b', {
+    .option('b', {
         alias: 'base',
         type: 'number',
         demandOption: true,
