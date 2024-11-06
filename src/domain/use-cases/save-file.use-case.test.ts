@@ -13,12 +13,17 @@ describe('SaveFileUseCase', () => {
 
     afterEach(() => {
         const outputFolderExists = fs.existsSync('outputs');
-        if(outputFolderExists) fs.rmSync('outputs', { recursive: true});
+        if(outputFolderExists) fs.rmSync('outputs', { recursive: true, force: true });
 
         const customOutputFolderExists = fs.existsSync(customOptions.fileDestination);
         if(customOutputFolderExists) fs.rmSync(customOptions.fileDestination, { recursive: true});
 
     });
+    
+
+    // beforeEach(() => {
+    //     jest.clearAllMocks(); // only works with spy tests
+    // });
     
     test('should save file with default values', () => {
     
@@ -55,7 +60,38 @@ describe('SaveFileUseCase', () => {
         expect(fileContent).toBe(customOptions.fileContent); 
 
     });
-    
+
+    test('should return false if directory could not be created', () => {
         
+        const saveFile = new SaveFile();
+        const mkdirSpy = jest.spyOn(fs, 'mkdirSync').mockImplementation(() => { //override mkdirSync method
+            throw new Error('This is a custom error message from testing');
+        });
+
+        const result = saveFile.execute(customOptions);
+
+        expect(result).toBe(false);
+
+        mkdirSpy.mockRestore(); // restores the original non-mocked implementation
+
+    });
+    
+    
+    test('should return false if file could not be create', () => {
+        
+        const saveFile = new SaveFile();
+        const writeFileSpy = jest.spyOn(fs, 'mkdirSync').mockImplementation(() => { 
+            throw new Error('This is a custom writing error message');
+        });
+
+        const result = saveFile.execute({fileContent: 'Test'});
+
+        expect(result).toBe(false);
+
+        writeFileSpy.mockRestore();
+
+
+    });
+     
 
 });
